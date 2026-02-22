@@ -1,7 +1,7 @@
-import app from './app';
-import { config } from './config/env';
-import { connectDB } from './config/database';
-import { logger } from './utils/logger';
+import app from '../src/app';
+import { config } from '../src/config/env';
+import { connectDB } from '../src/config/database';
+import { logger } from '../src/utils/logger';
 
 async function bootstrap() {
   // Connect to MongoDB
