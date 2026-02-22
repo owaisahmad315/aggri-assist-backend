@@ -1,12 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-function required(key: string): string {
-  const val = process.env[key];
-  if (!val) throw new Error(`Missing required environment variable: ${key}`);
-  return val;
-}
-
 function optional(key: string, fallback: string): string {
   return process.env[key] ?? fallback;
 }
@@ -26,13 +20,25 @@ export const config = {
   },
   huggingface: {
     apiToken: optional('HF_API_TOKEN', ''),
+    // Plant disease image classification
     plantDiseaseModel: optional(
       'HF_PLANT_DISEASE_MODEL',
       'linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification'
     ),
+    // Image captioning fallback
     visionModel: optional(
       'HF_VISION_MODEL',
       'Salesforce/blip-image-captioning-large'
+    ),
+    // Urdu LLM for chat responses
+    qalbModel: optional(
+      'HF_QALB_MODEL',
+      'enstazao/Qalb-1.0-8B-Instruct'
+    ),
+    // Urdu speech-to-text
+    urduSttModel: optional(
+      'HF_URDU_STT_MODEL',
+      'ihanif/whisper-medium-urdu'
     ),
   },
   upload: {
