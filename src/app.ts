@@ -16,17 +16,28 @@ import sessionRoutes from './routes/sessions.routes';
 
 const app = express();
 
+// ─── Trust proxy (required for Railway / any reverse-proxy host) ──────────────
+// Must be set BEFORE rate-limiters so express-rate-limit can read the real
+// client IP from the X-Forwarded-For header without throwing a ValidationError.
+app.set('trust proxy', 1);
+
 // ─── Security ─────────────────────────────────────────────────────────────────
 app.use(helmet());
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || config.cors.allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS: Origin ${origin} not allowed`));
-      }
+      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      // Exact-match against the configured allow-list
+      if (config.cors.allowedOrigins.includes(origin)) return callback(null, true);
+
+      // Also allow any *.vercel.app preview deployment for this project
+      if (/^https:\/\/aggri-assist[^.]*\.vercel\.app$/.test(origin)) return callback(null, true);
+
+      logger.warn(`CORS: Origin ${origin} not allowed`);
+      callback(new Error(`CORS: Origin ${origin} not allowed`));
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
